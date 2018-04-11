@@ -1,0 +1,4 @@
+.firebaserc
+functions/node_modules/
+functions/.eslintrc.json
+functions/package-lock.json
