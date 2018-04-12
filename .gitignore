@@ -3,3 +3,5 @@ functions/node_modules/
 functions/.eslintrc.json
 functions/package-lock.json
 functions/cloud-functions-emulator.log
+functions/firebase-debug.log
+data.json
