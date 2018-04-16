@@ -1,18 +1,20 @@
 const functions = require('firebase-functions');
-const { DialogflowApp } = require('actions-on-google');
+// const { DialogflowApp } = require('actions-on-google');
+const { ActionsSdkApp } = require('actions-on-google');
 const kuromoji = require('kuromoji');
 const admin = require("firebase-admin");
 admin.initializeApp(functions.config().firebase);
 const db = admin.database();
-
-// const wordList =
+const kuromojiBuilder = kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict/' });
 
 const getRandomInt = (max) => {
   return Math.floor(Math.random() * Math.floor(max));
 };
 
 exports.shiritoriResponse = functions.https.onRequest((request, response) => {
-  const app = new DialogflowApp({request: request, response: response});
+  // const app = new DialogflowApp({request: request, response: response});
+  console.log(request.body.inputs);
+  const app = new ActionsSdkApp({request: request, response: response});
   const WELCOME_INTENT = 'input.welcome';
   const SHIRITORI_INTENT = 'input.shiritori';
 
@@ -24,14 +26,15 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
       wordList = snap.val()
       startCharList = [];
       for (char in wordList) {startCharList.push(char)}
-      var speakerLastWord = startCharList[getRandomInt(startCharList.length)];
-      // var speakerLastWord = 'り';
+      // var speakerLastWord = startCharList[getRandomInt(startCharList.length)];
+      var speakerLastWord = 'か';
       console.log(speakerLastWord);
       usedWordRef.set({
         lastWord: speakerLastWord,
         usedWords: [speakerLastWord]
       });
-      app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}」から始めてください。制限時間は20秒です。`);
+      // app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}」から始めてください。制限時間は20秒です。`);
+      app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}ー」から始めてください。`);
     });
   }
 
@@ -49,24 +52,27 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
   }
 
   function shiritoriIntent (app) {
-    const rawInput = app.getArgument('shiritoriWord')
+    // const rawInput = app.getArgument('shiritoriWord');
+    const rawInput = app.getRawInput();
     if (rawInput === 'quit' || rawInput === 'exit' || rawInput === 'しりとりを終了') {
       app.tell('しりとりを終了します。');
     } else if (rawInput === 'pause') {
       app.tell('しりとりを終了します。');
     } else {
       let input = rawInput;
-      // kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict/' }).build((err, tokenizer) => {
-      // // builder.build((err, tokenizer) => {
-      //   if (err) {
-      //     console.log(err);
-      //   }
-      //   // builder.tokenizer = tokenizer;
-      //   kanaList = [];
-      //   path = tokenizer.tokenize(input);
-      //   for (i = 0; i < path.length; i++) {
-      //     kanaList.push(path[i]['reading']);
-      //   }
+      console.log(input);
+      kuromojiBuilder.build((err, tokenizer) => {
+      // builder.build((err, tokenizer) => {
+        if (err) {
+          console.log(err);
+        }
+        // builder.tokenizer = tokenizer;
+        console.log(input);
+        kanaList = [];
+        path = tokenizer.tokenize(input);
+        for (i = 0; i < path.length; i++) {
+          kanaList.push(path[i]['reading']);
+        }
 
         input = path[0]['reading'] ? kanaToHira(kanaList.join('')) : kanaToHira(input);
 
@@ -75,12 +81,13 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
           console.log(data);
           speakerLastWord = data['lastWord'];
           usedWordList = data['usedWords'];
+          console.log(input);
           checkedInput = userWordCheck(input,speakerLastWord,usedWordList);
           switch (checkedInput.status) {
             case 'continue':
               usedWordList.push(input);
               //Speaker側で次の単語を決める
-              db.ref('/shiritori/dictionary/'+input.slice(-1)).on('value', (snap) => {
+              db.ref('/shiritori/dictionary/'+smallToLarge(macronToVowel(input)).slice(-1)).on('value', (snap) => {
                 speakerAnswer = decideNextWord(input,usedWordList,snap.val());
                 switch (speakerAnswer.status) {
                   case 'no_word_exist':
@@ -121,13 +128,15 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
         })
         .catch('error');
 
-      // });
+      });
     }
   }
 
   const actionMap = new Map();
-  actionMap.set(WELCOME_INTENT, welcomeIntent);
-  actionMap.set(SHIRITORI_INTENT, shiritoriIntent);
+  // actionMap.set(WELCOME_INTENT, welcomeIntent);
+  // actionMap.set(SHIRITORI_INTENT, shiritoriIntent);
+  actionMap.set(app.StandardIntents.MAIN, welcomeIntent);
+  actionMap.set(app.StandardIntents.TEXT, shiritoriIntent);
   app.handleRequest(actionMap);
 });
 
