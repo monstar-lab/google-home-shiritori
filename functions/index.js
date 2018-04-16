@@ -15,8 +15,8 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
   // const app = new DialogflowApp({request: request, response: response});
   console.log(request.body.inputs);
   const app = new ActionsSdkApp({request: request, response: response});
-  const WELCOME_INTENT = 'input.welcome';
-  const SHIRITORI_INTENT = 'input.shiritori';
+  // const WELCOME_INTENT = 'input.welcome';
+  // const SHIRITORI_INTENT = 'input.shiritori';
 
   const usedWordRef = db.ref('/shiritori/usedWord');
   const dictionaryPath = '/shiritori/dictionary/';
