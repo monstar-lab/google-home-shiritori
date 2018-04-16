@@ -26,8 +26,8 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
       wordList = snap.val()
       startCharList = [];
       for (char in wordList) {startCharList.push(char)}
-      // var speakerLastWord = startCharList[getRandomInt(startCharList.length)];
-      var speakerLastWord = 'か';
+      var speakerLastWord = startCharList[getRandomInt(startCharList.length)];
+      // var speakerLastWord = 'か';
       console.log(speakerLastWord);
       usedWordRef.set({
         lastWord: speakerLastWord,
