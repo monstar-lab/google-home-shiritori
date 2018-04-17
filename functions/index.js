@@ -96,7 +96,7 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
                     // clearTimeout(closeTimer);
                     break;
                   case 'bad_word':
-                    app.tell(`${input}ですね。では、${speakerAnswer.word}。「ん」で終わってしまいました。ユーザーの勝ちです。`);
+                    app.tell(`${input}ですね。では、${speakerAnswer.word}。「んー」で終わってしまいました。ユーザーの勝ちです。`);
                     // clearTimeout(alertTimer);
                     // clearTimeout(closeTimer);
                     break;
@@ -160,11 +160,11 @@ const userWordCheck = (input, speakerLastWord, usedWordList) => {
   convertedSpeakerLastChar = smallToLarge(macronToVowel(speakerLastWord));
   //接続チェック
   if (input.slice(0,1) !== convertedSpeakerLastChar) {
-    return {status: 'retry', response: `「${convertedSpeakerLastChar}」から始まる単語ではありません。別の単語にしてください。`}
+    return {status: 'retry', response: `「${convertedSpeakerLastChar}ー」から始まる単語ではありません。別の単語にしてください。`}
   }
   //「ん」で終了
   if (input.slice(-1) === 'ん') {
-    return {status: 'lose', response: `「${input}」ですね。「ん」で終わりました。私の勝ちです。`}
+    return {status: 'lose', response: `「${input}」ですね。「んー」で終わりました。私の勝ちです。`}
   }
   //重複チェック
   if (usedWordList.some((usedWord) => {return usedWord === input})) {
