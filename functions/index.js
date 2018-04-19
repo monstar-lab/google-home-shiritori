@@ -12,11 +12,8 @@ const getRandomInt = (max) => {
 };
 
 exports.shiritoriResponse = functions.https.onRequest((request, response) => {
-  // const app = new DialogflowApp({request: request, response: response});
   console.log(request.body.inputs);
   const app = new ActionsSdkApp({request: request, response: response});
-  // const WELCOME_INTENT = 'input.welcome';
-  // const SHIRITORI_INTENT = 'input.shiritori';
 
   const usedWordRef = db.ref('/shiritori/usedWord');
   const dictionaryPath = '/shiritori/dictionary/';
@@ -37,11 +34,6 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
       app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}ー」から始めてください。`);
     });
   }
-
-  // const builder = new kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict/' });
-
-  // const reading = (input) => {
-  // };
 
   function kuromojiPromise (input) {
     return new Promise((resolve, reject) => {
@@ -68,7 +60,6 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
   }
 
   function shiritoriIntent (app) {
-    // const rawInput = app.getArgument('shiritoriWord');
     const rawInput = app.getRawInput();
     if (rawInput === 'quit' || rawInput === 'exit' || rawInput === 'しりとりを終了') {
       app.tell('しりとりを終了します。');
@@ -134,8 +125,6 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
   }
 
   const actionMap = new Map();
-  // actionMap.set(WELCOME_INTENT, welcomeIntent);
-  // actionMap.set(SHIRITORI_INTENT, shiritoriIntent);
   actionMap.set(app.StandardIntents.MAIN, welcomeIntent);
   actionMap.set(app.StandardIntents.TEXT, shiritoriIntent);
   app.handleRequest(actionMap);
