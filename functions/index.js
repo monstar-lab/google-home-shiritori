@@ -43,10 +43,26 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
   // const reading = (input) => {
   // };
 
-  const readDB = () => {
+  function kuromojiPromise (input) {
+    return new Promise((resolve, reject) => {
+      kuromojiBuilder.build((err, tokenizer) => {
+        if (err) {console.log(err)}
+        console.log(input);
+        kanaList = [];
+        path = tokenizer.tokenize(input);
+        for (i = 0; i < path.length; i++) {
+          kanaList.push(path[i]['reading']);
+        }
+        convertedInput = path[0]['reading'] ? kanaToHira(kanaList.join('')) : kanaToHira(input);
+        resolve(convertedInput);
+      })
+    })
+  }
+
+  const readDB = (input) => {
     return new Promise((resolve, reject) => {
       usedWordRef.once('value', (snap) => {
-        resolve(snap.val())
+        resolve({input: input, data: snap.val()})
       })
     })
   }
@@ -61,74 +77,59 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
     } else {
       let input = rawInput;
       console.log(input);
-      kuromojiBuilder.build((err, tokenizer) => {
-      // builder.build((err, tokenizer) => {
-        if (err) {
-          console.log(err);
-        }
-        // builder.tokenizer = tokenizer;
+      
+      kuromojiPromise(input)
+      .then(readDB)
+      .then(({input, data}) => {
+        console.log(data);
+        speakerLastWord = data['lastWord'];
+        usedWordList = data['usedWords'];
         console.log(input);
-        kanaList = [];
-        path = tokenizer.tokenize(input);
-        for (i = 0; i < path.length; i++) {
-          kanaList.push(path[i]['reading']);
-        }
-
-        input = path[0]['reading'] ? kanaToHira(kanaList.join('')) : kanaToHira(input);
-
-        readDB()
-        .then((data) => {
-          console.log(data);
-          speakerLastWord = data['lastWord'];
-          usedWordList = data['usedWords'];
-          console.log(input);
-          checkedInput = userWordCheck(input,speakerLastWord,usedWordList);
-          switch (checkedInput.status) {
-            case 'continue':
-              usedWordList.push(input);
-              //Speaker側で次の単語を決める
-              db.ref('/shiritori/dictionary/'+smallToLarge(macronToVowel(input)).slice(-1)).on('value', (snap) => {
-                speakerAnswer = decideNextWord(input,usedWordList,snap.val());
-                switch (speakerAnswer.status) {
-                  case 'no_word_exist':
-                    app.tell(`${input}ですね。単語が思い浮かびません。ユーザーの勝ちです。`);
-                    // clearTimeout(alertTimer);
-                    // clearTimeout(closeTimer);
-                    break;
-                  case 'bad_word':
-                    app.tell(`${input}ですね。では、${speakerAnswer.word}。「んー」で終わってしまいました。ユーザーの勝ちです。`);
-                    // clearTimeout(alertTimer);
-                    // clearTimeout(closeTimer);
-                    break;
-                  case 'word_exist':
-                    app.ask(`${input}ですね。では、${speakerAnswer.word}`);
-                    usedWordList.push(speakerAnswer.word);
-                    usedWordRef.set({
-                      lastWord: speakerAnswer.word,
-                      usedWords: usedWordList
-                    });
-                    // clearTimeout(alertTimer);
-                    // clearTimeout(closeTimer);
-                    // alertTimer = setTimeout(() => {app.ask('\n残り5秒です。')}, 15000);
-                    // closeTimer = setTimeout(() => {app.ask('\n時間オーバーです。わたしの勝ちです。')}, 20000);
-                    break;
-                }
-              });
-              break;
-            case 'retry':
-              app.ask(checkedInput.response);
-              break;
-            case 'lose':
-              app.tell(checkedInput.response);
-              // clearTimeout(alertTimer);
-              // clearTimeout(closeTimer);
-              break;
-            }
-            return 0;
-        })
-        .catch('error');
-
-      });
+        checkedInput = userWordCheck(input,speakerLastWord,usedWordList);
+        switch (checkedInput.status) {
+          case 'continue':
+            usedWordList.push(input);
+            //Speaker側で次の単語を決める
+            db.ref('/shiritori/dictionary/'+smallToLarge(macronToVowel(input)).slice(-1)).on('value', (snap) => {
+              speakerAnswer = decideNextWord(input,usedWordList,snap.val());
+              switch (speakerAnswer.status) {
+                case 'no_word_exist':
+                  app.tell(`${input}ですね。単語が思い浮かびません。ユーザーの勝ちです。`);
+                  // clearTimeout(alertTimer);
+                  // clearTimeout(closeTimer);
+                  break;
+                case 'bad_word':
+                  app.tell(`${input}ですね。では、${speakerAnswer.word}。「んー」で終わってしまいました。ユーザーの勝ちです。`);
+                  // clearTimeout(alertTimer);
+                  // clearTimeout(closeTimer);
+                  break;
+                case 'word_exist':
+                  app.ask(`${input}ですね。では、${speakerAnswer.word}`);
+                  usedWordList.push(speakerAnswer.word);
+                  usedWordRef.set({
+                    lastWord: speakerAnswer.word,
+                    usedWords: usedWordList
+                  });
+                  // clearTimeout(alertTimer);
+                  // clearTimeout(closeTimer);
+                  // alertTimer = setTimeout(() => {app.ask('\n残り5秒です。')}, 15000);
+                  // closeTimer = setTimeout(() => {app.ask('\n時間オーバーです。わたしの勝ちです。')}, 20000);
+                  break;
+              }
+            });
+            break;
+          case 'retry':
+            app.ask(checkedInput.response);
+            break;
+          case 'lose':
+            app.tell(checkedInput.response);
+            // clearTimeout(alertTimer);
+            // clearTimeout(closeTimer);
+            break;
+          }
+          return 0;
+      })
+      .catch('error');
     }
   }
 
