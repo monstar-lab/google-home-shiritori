@@ -34,8 +34,10 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
       timerRef.set({
         msg: "start"
       });
+      const inputPrompt = app.buildInputPrompt(true,`<speak>しりとりをしましょう。「${speakerLastWord.slice(-1)}ー」から始めてください。</speak>`,
+        ['<speak><break time="10s"/></speak>','.','<speak>時間オーバーです。わたしの勝ちです。</speak>']);
       // app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}」から始めてください。制限時間は20秒です。`);
-      app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}ー」から始めてください。`);
+      app.ask(inputPrompt);
     });
   }
 
@@ -104,7 +106,9 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
                   });
                   break;
                 case 'word_exist':
-                  app.ask(`${input}ですね。では、${speakerAnswer.word}`);
+                  inputPrompt = app.buildInputPrompt(true,`<speak>${input}ですね。では、${speakerAnswer.word}</speak>`,
+                    ['<speak><break time="10s"/></speak>','.','<speak>時間オーバーです。わたしの勝ちです。</speak>']);
+                  app.ask(inputPrompt);
                   usedWordList.push(speakerAnswer.word);
                   usedWordRef.set({
                     lastWord: speakerAnswer.word,
@@ -121,7 +125,9 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
             });
             break;
           case 'retry':
-            app.ask(checkedInput.response);
+            inputPrompt = app.buildInputPrompt(true,`<speak>${checkedInput.response}</speak>`,
+              ['<speak><break time="10s"/></speak>','.','<speak>時間オーバーです。わたしの勝ちです。</speak>']);
+            app.ask(inputPrompt);
             break;
           case 'lose':
             app.tell(checkedInput.response);
