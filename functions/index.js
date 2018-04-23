@@ -17,6 +17,7 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
 
   const usedWordRef = db.ref('/shiritori/usedWord');
   const dictionaryPath = '/shiritori/dictionary/';
+  const timerRef = db.ref('/shiritori/timer');
 
   function welcomeIntent (app) {
     startCharObject = db.ref('/shiritori/dictionary').on('value', (snap) => {
@@ -29,6 +30,9 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
       usedWordRef.set({
         lastWord: speakerLastWord,
         usedWords: [speakerLastWord]
+      });
+      timerRef.set({
+        msg: "start"
       });
       // app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}」から始めてください。制限時間は20秒です。`);
       app.ask(`しりとりをしましょう。「${speakerLastWord.slice(-1)}ー」から始めてください。`);
@@ -86,13 +90,18 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
               switch (speakerAnswer.status) {
                 case 'no_word_exist':
                   app.tell(`${input}ですね。単語が思い浮かびません。ユーザーの勝ちです。`);
-                  // clearTimeout(alertTimer);
-                  // clearTimeout(closeTimer);
+                  timerRef.set({
+                    msg: "stop"
+                  });
+                  timerRef.set({
+                    msg: "start"
+                  });
                   break;
                 case 'bad_word':
                   app.tell(`${input}ですね。では、${speakerAnswer.word}。「んー」で終わってしまいました。ユーザーの勝ちです。`);
-                  // clearTimeout(alertTimer);
-                  // clearTimeout(closeTimer);
+                  timerRef.set({
+                    msg: "stop"
+                  });
                   break;
                 case 'word_exist':
                   app.ask(`${input}ですね。では、${speakerAnswer.word}`);
@@ -101,10 +110,12 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
                     lastWord: speakerAnswer.word,
                     usedWords: usedWordList
                   });
-                  // clearTimeout(alertTimer);
-                  // clearTimeout(closeTimer);
-                  // alertTimer = setTimeout(() => {app.ask('\n残り5秒です。')}, 15000);
-                  // closeTimer = setTimeout(() => {app.ask('\n時間オーバーです。わたしの勝ちです。')}, 20000);
+                  timerRef.set({
+                    msg: "stop"
+                  });
+                  timerRef.set({
+                    msg: "start"
+                  });
                   break;
               }
             });
@@ -114,8 +125,9 @@ exports.shiritoriResponse = functions.https.onRequest((request, response) => {
             break;
           case 'lose':
             app.tell(checkedInput.response);
-            // clearTimeout(alertTimer);
-            // clearTimeout(closeTimer);
+            timerRef.set({
+              msg: "stop"
+            });
             break;
           }
           return 0;
