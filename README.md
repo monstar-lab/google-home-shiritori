@@ -6,7 +6,7 @@ Google Home と「しりとり」をすることができるアプリです。
 このアプリを動かすには、Google Homeの他に、
   - Actions on Google の作成
   - Firebase Functions のデプロイ
-  - Actions SDK のデプロイ
+  - Actions SDK のデプロイ
   - Firebase Realtime Database にデータの挿入
 
 が必要になります。以下ではその手順について説明します。
@@ -40,7 +40,6 @@ Google Home と「しりとり」をすることができるアプリです。
     ? Do you want to use ESLint to catch probable bugs and enforce style? No
     ? File functions/package.json already exists. Overwrite? No
     ? File functions/index.js already exists. Overwrite? No
-    i  Skipping write of functions/index.js
     ? Do you want to install dependencies with npm now? Yes
     ```
 1. `firebase deploy --only functions`でデプロイする
