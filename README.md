@@ -21,20 +21,20 @@ Google Home と「しりとり」をすることができるアプリです。
 
 
 # Actions on Googleの作成
-1. [Actions on Google Console](https://console.actions.google.com)から作成する
+1. [Actions on Google Console](https://console.actions.google.com){:target="_blank"}から作成する
 1. [project名(actions)]を記入し、projectを作成する
-1. Actions SDK でビルドを選択する
-1. `gactions`を[gactions-cli](https://developers.google.com/actions/tools/gactions-cli)からダウンロードし、`chmod u+x gactions`で実行権限を追加する
-1. `gactions`を`google-home-shiritori`に移動する
+1. Actions SDK でビルドを選択する
+1. `gactions`を[gactions-cli](https://developers.google.com/actions/tools/gactions-cli)からダウンロードし、`chmod u+x gactions`で実行権限を追加する
+1. `gactions`を`google-home-shiritori`に移動する
 
 
 # Firebase Functions へのデプロイ
 1. [Firebase](https://console.firebase.google.com)を開き、[project名(firebase)]、[project-id]を記入し、projectを新規作成する
 1. `npm install -g firebase-tools`
-1. `firebase login` を実行後、指示にしたがってFirebaseにログインする
+1. `firebase login` を実行後、指示にしたがってFirebaseにログインする
 1. `google-home-shiritori/`内で、`firebase init functions`を実行する
-1. projectを選択するよう言われるので、1.で作成したprojectを選択する
-1. 以下のように回答する
+1. projectを選択するよう言われるので、1.で作成したprojectを選択する
+1. 以下のように回答する
     ```
     ? What language would you like to use to write Cloud Functions? JavaScript
     ? Do you want to use ESLint to catch probable bugs and enforce style? No
@@ -102,6 +102,6 @@ Google Home と「しりとり」をすることができるアプリです。
 
 # Firebase Realtime Database へのデータの挿入
 1. `data.json`の`dictionary`が Google Home の語彙になっているので、適宜編集する
-1. [Firebase](https://console.firebase.google.com)のプロジェクトから、Databaseを選択する
+1. [Firebase](https://console.firebase.google.com)のプロジェクトから、Databaseを選択する
 1. Realtime Database を作成し、JSONからインポートを選択する
 1. `data.json`をインポートする
