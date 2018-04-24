@@ -21,7 +21,7 @@ Google Home と「しりとり」をすることができるアプリです。
 
 
 # Actions on Googleの作成
-1. [Actions on Google Console](https://console.actions.google.com){:target="_blank"}から作成する
+1. [Actions on Google Console](https://console.actions.google.com)から作成する
 1. [project名(actions)]を記入し、projectを作成する
 1. Actions SDK でビルドを選択する
 1. `gactions`を[gactions-cli](https://developers.google.com/actions/tools/gactions-cli)からダウンロードし、`chmod u+x gactions`で実行権限を追加する
