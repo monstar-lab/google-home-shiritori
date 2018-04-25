@@ -1,40 +1,39 @@
 # google-home-shiritori
 
-Google Home と「しりとり」をすることができるアプリです。
+You can play "Shiritori" with your Google Home.
 
-# はじめに
-このアプリを動かすには、Google Homeの他に、
-  - Actions on Google の作成
-  - Firebase Functions のデプロイ
-  - Actions SDK のデプロイ
-  - Firebase Realtime Database にデータの挿入
+# Introduction
+To use this app, you should
+- have a Google account
+- create Actions on Google
+- deploy Firebase Functions
+- deploy Actions SDK
+- insert data in Firebase Realtime Database
 
-が必要になります。以下ではその手順について説明します。
 
+# Local environment
+- node (v6.11.5^)
+- gactions (mention later)
 
-# 必要なローカル環境
-- node (v6.11.5以上)
-- gactions (後述)
-
-## クローン
+## clone
 - `git clone https://github.com/monstar-lab/google-home-shiritori.git`
 
 
-# Actions on Googleの作成
-1. [Actions on Google Console](https://console.actions.google.com)から作成する
-1. [project名(actions)]を記入し、projectを作成する
-1. Actions SDK でビルドを選択する
-1. `gactions`を[gactions-cli](https://developers.google.com/actions/tools/gactions-cli)からダウンロードし、`chmod u+x gactions`で実行権限を追加する
-1. `gactions`を`google-home-shiritori`に移動する
+# Creating Actions on Google
+1. Click "Add/import project" on [Actions on Google Console](https://console.actions.google.com)
+1. Write down your [project-name (actions)], choose your country and create project
+1. Click "Actions SDK"
+1. Download `gactions` from [the cite of gactions-cli](https://developers.google.com/actions/tools/gactions-cli) and execute `chmod u+x gactions`
+1. move `gactions` to `google-home-shiritori`
 
 
-# Firebase Functions へのデプロイ
-1. [Firebase](https://console.firebase.google.com)を開き、[project名(firebase)]、[project-id]を記入し、projectを新規作成する
+# Deploying Firebase Functions
+1. Open your [Firebase Console](https://console.firebase.google.com), write down your [project-name (firebase)] [project-id] and create new project
 1. `npm install -g firebase-tools`
-1. `firebase login` を実行後、指示にしたがってFirebaseにログインする
-1. `google-home-shiritori/`内で、`firebase init functions`を実行する
-1. projectを選択するよう言われるので、1.で作成したprojectを選択する
-1. 以下のように回答する
+1. Execute `firebase login` and login to Firebase-cli according to the instruction
+1. Execute `firebase init functions` in `google-home-shiritori/`
+1. Choose [project-name (firebase)]
+1. Answer like below
     ```
     ? What language would you like to use to write Cloud Functions? JavaScript
     ? Do you want to use ESLint to catch probable bugs and enforce style? No
@@ -42,12 +41,12 @@ Google Home と「しりとり」をすることができるアプリです。
     ? File functions/index.js already exists. Overwrite? No
     ? Do you want to install dependencies with npm now? Yes
     ```
-1. `firebase deploy --only functions`でデプロイする
+1. Deploy `firebase deploy --only functions`
 
 
-# Actions SDK のデプロイ
-1. `./gactions init`
-1. `action.json`を以下のように編集する
+# Deploying Actions SDK
+1. Execute `./gactions init`
+1. Edit `action.json` like below
     ```json
     {
       "actions": [
@@ -88,19 +87,19 @@ Google Home と「しりとり」をすることができるアプリです。
       "conversations": {
         "shiritoriFunction": {
           "name": "shiritoriFunction",
-          "url": [Firebase FunctionsのURL]
+          "url": [URL of Firebase Functions]
         }
       },
       "locale": "ja"
     }
     ```
-    FunctionsのURLは次の黒部分に記載されている
+    Your URL of Firebase Functions is displayed on your Firebase Console.
     ![](img/firebase_url_black.png)
-1. `./gactions update --action_package action.json --project [project名(actions)]`
+1. Execute `./gactions update --action_package action.json --project [project名(actions)]`
 
 
-# Firebase Realtime Database へのデータの挿入
-1. `data.json`の`dictionary`が Google Home の語彙になっているので、適宜編集する
-1. [Firebase](https://console.firebase.google.com)のプロジェクトから、Databaseを選択する
-1. Realtime Database を作成し、JSONからインポートを選択する
-1. `data.json`をインポートする
+# Inserting data in Firebase Realtime Database
+1. Edit `data.json`. `dictionary` is the vocabulary list of the Google Home
+1. Click "Database" from [Firebase Console](https://console.firebase.google.com)
+1. Create Realtime Database and import data from JSON
+1. Import `data.json`
